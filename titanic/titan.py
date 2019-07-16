@@ -29,4 +29,4 @@ predictions=classifier.predict(test_df)
 
 #test model
 truth = test_ans_df['Survived'].to_numpy()
-print(accuracy_score(truth,predictions))
+print(accuracy_score(truth,predictions), file=open("output.txt", "a"))

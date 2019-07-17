@@ -9,24 +9,33 @@ import category_encoders as ce
 #import random as rnd
 #sns.set()
 
-FEATURES = ['Pclass','Sex']
+def run_ml(features):
+	#create dataframes from files
+	train_df = pd.read_csv('./train.csv')[features]
+	train_ans_df = pd.read_csv('./train.csv')['Survived']
+	test_df = pd.read_csv('./test.csv')[features]
+	test_ans_df = pd.read_csv('./gender_submission.csv')
 
-#create dataframes from files
-train_df = pd.read_csv('./train.csv')[FEATURES]
-train_ans_df = pd.read_csv('./train.csv')['Survived']
-test_df = pd.read_csv('./test.csv')[FEATURES]
-test_ans_df = pd.read_csv('./gender_submission.csv')
+	#prep dataframes
+	encoder = ce.one_hot.OneHotEncoder()
+	train_df = encoder.fit_transform(train_df)
+	test_df = encoder.transform(test_df)
+	
+	#train model
+	classifier=KNeighborsClassifier()
+	classifier.fit(train_df,train_ans_df)
+	predictions=classifier.predict(test_df)
 
-#prep dataframes
-encoder = ce.one_hot.OneHotEncoder()
-train_df = encoder.fit_transform(train_df)
-test_df = encoder.fit_transform(test_df)
+	#test model
+	truth = test_ans_df['Survived'].to_numpy()
+	print(accuracy_score(truth,predictions), file=open("output.txt", "a"))
 
-#train model
-classifier=KNeighborsClassifier()
-classifier.fit(train_df,train_ans_df)
-predictions=classifier.predict(test_df)
+print("Based on Class:", file=open("output.txt", "a"))
+run_ml(['Pclass'])
+print("Based on Sex:", file=open("output.txt", "a"))
+run_ml(['Sex'])
+print("Based on Class and Sex:", file=open("output.txt", "a"))
+run_ml(['Pclass','Sex'])
 
-#test model
-truth = test_ans_df['Survived'].to_numpy()
-print(accuracy_score(truth,predictions), file=open("output.txt", "a"))
+
+
